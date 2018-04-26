@@ -2,8 +2,12 @@ import bpy
 import os
 import sys
 
+print(sys.argv)
+
 input_model = sys.argv[-2] # one to the end is model name
 export_png = sys.argv[-1] # last one is the png
+
+print(input_model, "tiger", export_png, "tiger")
 
 assert(input_model.lower().endswith("stl"))
 assert(export_png.lower().endswith("png"))
@@ -29,5 +33,11 @@ bpy.ops.object.origin_set(type="GEOMETRY_ORIGIN")
 scene.cursor_location = (0, 0, 0)
 bpy.ops.object.origin_set(type="ORIGIN_CURSOR")
 
-bpy.context.scene.render.filepath = export_png
-bpy.ops.render.render(write_still=True)
+counter = 0
+for obj in bpy.data.objects:
+    if obj.type == "CAMERA":
+        bpy.context.scene.render.filepath = os.path.join(os.path.dirname(export_png), str(counter) + os.path.basename(export_png))
+        print("exporting to", bpy.context.scene.render.filepath)
+        bpy.data.scenes[0].camera = obj
+        bpy.ops.render.render(write_still=True)
+        counter += 1
