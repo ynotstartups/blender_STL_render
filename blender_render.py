@@ -3,32 +3,18 @@ import os
 import sys
 import math
 
-print(sys.argv)
-
 input_model = sys.argv[-2] # one to the end is model name
 export_png = sys.argv[-1] # last one is the png
 
-print(input_model, "tiger", export_png, "tiger")
-
 assert(input_model.lower().endswith("stl"))
 assert(export_png.lower().endswith("png"))
-
-# assert(len(argv)==1)
-# model = '/home/mmf159/Downloads/easter-egg-challenge-1.stl';
 
 scene = bpy.context.scene
 bpy.ops.import_mesh.stl(filepath=input_model)
 
 imported = bpy.context.selected_objects[0]
 imported_obj = bpy.data.objects[imported.name]
-print(imported_obj)
-
-for i in imported_obj.bound_box:
-    print(i[0], i[1], i[2])
-
 dim = imported_obj.dimensions
-print(dim)
-
 max_dim = max(max(dim.x, dim.y), dim.z) # only look at dimx dimy
 scale_factor = 6/max_dim;
 
@@ -52,7 +38,7 @@ rotation_eulers = [
 ]
 
 counter = 0
-for obj in bpy.data.objects:
+for obj in bpy.data.objects: # used for multiple cameras
     if obj.type == "CAMERA":
         bpy.data.scenes[0].camera = obj
 
