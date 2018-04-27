@@ -1,6 +1,7 @@
 import bpy
 import os
 import sys
+import math
 
 print(sys.argv)
 
@@ -35,16 +36,33 @@ bpy.ops.transform.resize(value=(scale_factor, scale_factor, scale_factor))
 dim = imported_obj.dimensions
 
 # https://blender.stackexchange.com/questions/24015/how-to-place-objects-on-the-center-of-the-ground-plane-via-python
-bpy.ops.object.origin_set(type="GEOMETRY_ORIGIN")
+bpy.ops.object.origin_set(type="GEOMETRY_ORIGIN", center="BOUNDS")
 imported_obj.location = (0, 0, 0)
 
 filename, file_extension = os.path.splitext(export_png)
 
+rotation_eulers = [
+    (0, 0, 0),
+    (0, 0, math.pi/2),
+    (0, 0, 2*math.pi/2),
+    (0, 0, 3*math.pi/2),
+    (0, 0, 4*math.pi/2),
+    (math.pi/2, 0, 0),
+    (-math.pi/2, 0, 0),
+]
+
 counter = 0
 for obj in bpy.data.objects:
     if obj.type == "CAMERA":
-        bpy.context.scene.render.filepath = filename+str(counter)+file_extension
-        print("exporting to", bpy.context.scene.render.filepath)
         bpy.data.scenes[0].camera = obj
+
+        # 6 rotation
+        #  for rotation_euler in rotation_eulers:
+            #  bpy.context.scene.render.filepath = filename+str(counter)+file_extension
+            #  imported_obj.rotation_euler = rotation_euler
+            #  bpy.ops.render.render(write_still=True)
+            #  counter += 1
+
+        # no rotation
+        bpy.context.scene.render.filepath = filename+str(counter)+file_extension
         bpy.ops.render.render(write_still=True)
-        counter += 1
