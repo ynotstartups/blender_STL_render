@@ -2,7 +2,7 @@ import os
 import shlex
 
 REALPATH = os.path.dirname(os.path.realpath(__file__))
-BLEND_FILE_PATH = os.path.join(REALPATH, 'tinkercad.blend')
+BLEND_FILE_PATH = os.path.join(REALPATH, "blend", 'tinkercad.blend')
 PYTHON_SCRIPT = os.path.join(REALPATH, 'blender_render.py')
 
 def render(path_to_stl, blender_exec, export_dir):
