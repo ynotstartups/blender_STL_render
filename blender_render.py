@@ -53,7 +53,6 @@ rotation_eulers = [
     (0, 0, math.pi/2),
     (0, 0, 2*math.pi/2),
     (0, 0, 3*math.pi/2),
-    (0, 0, 4*math.pi/2),
     (math.pi/2, 0, 0),
     (-math.pi/2, 0, 0),
 ]
