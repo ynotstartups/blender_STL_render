@@ -2,19 +2,22 @@ import os
 import shlex
 
 REALPATH = os.path.dirname(os.path.realpath(__file__))
-BLEND_FILE_PATH = os.path.join(REALPATH, "blend", 'tinkercad.blend')
 PYTHON_SCRIPT = os.path.join(REALPATH, 'blender_render.py')
 
-def render(path_to_stl, blender_exec, export_dir):
+def render(path_to_stl, blender_exec, blend_file_path, export_dir, rotation):
     # hacky way of changing extension from stl to png
     export_png = os.path.join(
         export_dir, os.path.splitext(os.path.basename(path_to_stl))[0] + ".png"
     )
 
-    command = '{} --background {} --python {} {} {}'.format(
+    command = '{} --background {} --python {} --input_model {} --export_png {}'
+    if rotation:
+        command += ' --rotation'
+
+    command = command.format(
         *[shlex.quote(i) for i in [
         args.blender_exec,
-        BLEND_FILE_PATH,
+        blend_file_path,
         PYTHON_SCRIPT,
         path_to_stl,
         export_png
@@ -26,6 +29,10 @@ def render(path_to_stl, blender_exec, export_dir):
 
 
 if __name__ == "__main__":
+    # TODO: add test
+    # 1. tinkercad render should output 1 picture
+    # 2. non-tinkercad render should returns 6 pictures
+
     import sys
     if sys.version_info < (3, 3):
         print('You need to run this with at least Python 3.3')
@@ -41,7 +48,20 @@ if __name__ == "__main__":
     group.add_argument("--stl_file", help="the one stl file you want to render")
     group.add_argument("--stl_dir", help="the directory of stl files you want to render")
 
+    group = parser.add_mutually_exclusive_group(required=False)
+    group.add_argument("--general", help="You want to render non-tinkercad objects", action="store_true", default=True)
+    group.add_argument("--tinkercad", help="You want to render tinkercad objects", action="store_true")
+
     args = parser.parse_args()
+
+    if args.tinkercad:
+        rotation = False
+        blend_file_path = os.path.join(REALPATH, "blend", 'tinkercad_camera_track_to.blend')
+    elif args.general:
+        rotation = True
+        blend_file_path = os.path.join(REALPATH, "blend", 'layers_irregular_surface.blend')
+    else:
+        raise ValueError("This should not never happen")
 
     if args.stl_dir is not None:
         files = os.listdir(args.stl_dir)
@@ -51,13 +71,17 @@ if __name__ == "__main__":
                 render(
                     os.path.join(args.stl_dir, stl_name),
                     args.blender_exec,
-                    args.export_dir
+                    blend_file_path,
+                    args.export_dir,
+                    rotation
                 )
     elif args.stl_file is not None:
         render(
             args.stl_file,
             args.blender_exec,
-            args.export_dir
+            blend_file_path,
+            args.export_dir,
+            rotation
         )
     else:
         print("Wrong Usage, This should never happens")
