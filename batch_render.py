@@ -4,13 +4,9 @@ import shlex
 REALPATH = os.path.dirname(os.path.realpath(__file__))
 PYTHON_SCRIPT = os.path.join(REALPATH, 'blender_render.py')
 
-def render(path_to_stl, blender_exec, blend_file_path, export_dir, rotation):
+def render(path_to_stl, blender_exec, blend_file_path, export_png, rotation):
     # hacky way of changing extension from stl to png
-    export_png = os.path.join(
-        export_dir, os.path.splitext(os.path.basename(path_to_stl))[0] + ".png"
-    )
-
-    command = '{} --background {} --python {} --input_model {} --export_png {}'
+    command = '{} --background {} --python {} --input_model {} --export_png '+'{} '*len(export_png)
     if rotation:
         command += ' --rotation'
 
@@ -20,7 +16,7 @@ def render(path_to_stl, blender_exec, blend_file_path, export_dir, rotation):
         blend_file_path,
         PYTHON_SCRIPT,
         path_to_stl,
-        export_png
+        *export_png
         ]]
     )
 
@@ -42,7 +38,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="Batch Render STL file with blender")
     parser.add_argument("--blender_exec", required=True, help="Path to Blender Executable")
-    parser.add_argument("--export_dir", required=True, help="the directory the render will export to, if the directory doesn't exist will try to create it")
+    parser.add_argument("--export_png", nargs='+', required=True, help="the directory the render will export to, if the directory doesn't exist will try to create it")
 
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument("--stl_file", help="the one stl file you want to render")
@@ -55,9 +51,11 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.tinkercad:
+        assert len(args.export_png) == 1, "length of export_png should be 1 instead of {}".format(len(args.export_png))
         rotation = False
         blend_file_path = os.path.join(REALPATH, "blend", 'tinkercad_camera_track_to.blend')
     elif args.general:
+        assert len(args.export_png) == 6, "length of export_png should be 6 instead of {}".format(len(args.export_png))
         rotation = True
         blend_file_path = os.path.join(REALPATH, "blend", 'layers_irregular_surface.blend')
     else:
@@ -72,7 +70,7 @@ if __name__ == "__main__":
                     os.path.join(args.stl_dir, stl_name),
                     args.blender_exec,
                     blend_file_path,
-                    args.export_dir,
+                    args.export_png,
                     rotation
                 )
     elif args.stl_file is not None:
@@ -80,7 +78,7 @@ if __name__ == "__main__":
             args.stl_file,
             args.blender_exec,
             blend_file_path,
-            args.export_dir,
+            args.export_png,
             rotation
         )
     else:

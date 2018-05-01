@@ -6,8 +6,10 @@ import math
 import argparse
 parser = argparse.ArgumentParser(description="Render STL file with blender")
 parser.add_argument("--export_png",
+        nargs='+',
         required=True,
-        help="name of export png")
+        help="the directory the render will export to, if the directory doesn't exist will try to create it"
+)
 
 parser.add_argument("--input_model",
         required=True,
@@ -46,8 +48,6 @@ imported_stl.location = (0, 0, 0)
 material = bpy.data.materials.get("Material")
 imported_stl.data.materials.append(material)
 
-filename, file_extension = os.path.splitext(export_png)
-
 rotation_eulers = [
     (0, 0, 0),
     (0, 0, math.pi/2),
@@ -62,15 +62,17 @@ for obj in bpy.data.objects: # used for multiple cameras
     if obj.type == "CAMERA":
         # 6 rotation
         if args.rotation:
-            for rotation_euler in rotation_eulers:
-                bpy.context.scene.render.filepath = filename+str(counter)+file_extension
+            assert len(export_png) == 6, "length of export_png should be 6 for rotation"
+            for rotation_euler, filepath in zip(rotation_eulers, args.export_png):
+                bpy.context.scene.render.filepath = filepath
                 imported_stl.rotation_euler = rotation_euler
                 bpy.ops.render.render(write_still=True)
                 counter += 1
         else:
+            assert len(export_png) == 1, "length of export_png should be 1 for rotation"
             # no rotation
             bpy.data.scenes[0].camera = obj
             obj.constraints['Track To'].target = imported_stl
 
-            bpy.context.scene.render.filepath = export_png
+            bpy.context.scene.render.filepath = export_png[0] # we know length is 1
             bpy.ops.render.render(write_still=True)
