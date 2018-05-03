@@ -26,8 +26,8 @@ args, unknown = parser.parse_known_args()
 input_model = args.input_model
 export_png = args.export_png
 
-assert(input_model.lower().endswith("stl"))
-assert(export_png.lower().endswith("png"))
+assert input_model.lower().endswith("stl")
+assert all([i.lower().endswith("png") for i in export_png])
 
 scene = bpy.context.scene
 bpy.ops.import_mesh.stl(filepath=input_model)
