@@ -15,9 +15,8 @@ def render(path_to_stl, blender_exec, blend_file_path, export_png, rotation):
         args.blender_exec,
         blend_file_path,
         PYTHON_SCRIPT,
-        path_to_stl,
-        *export_png
-        ]]
+        path_to_stl ] + export_png
+        ]
     )
 
     print(command)
