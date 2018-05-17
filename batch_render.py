@@ -63,7 +63,7 @@ if __name__ == "__main__":
     if args.stl_dir is not None:
         files = os.listdir(args.stl_dir)
         for name in files:
-            if name.lower().endswith(".stl"):
+            if name.lower().endswith(".stl") or name.lower().endswith(".obj"):
                 stl_name = name
                 render(
                     os.path.join(args.stl_dir, stl_name),

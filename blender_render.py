@@ -26,14 +26,29 @@ args, unknown = parser.parse_known_args()
 input_model = args.input_model
 export_png = args.export_png
 
-assert input_model.lower().endswith("stl")
+_, extension = os.path.splitext(input_model)
+extension = extension.lower()
+
+assert extension.endswith("stl") or extension.endswith("obj")
 assert all([i.lower().endswith("png") for i in export_png])
 
 scene = bpy.context.scene
-bpy.ops.import_mesh.stl(filepath=input_model)
+
+if extension.endswith("stl"):
+    bpy.ops.import_mesh.stl(filepath=input_model)
+elif extension.endswith("obj"):
+    bpy.ops.import_scene.obj(filepath=input_model)
+else:
+    raise ValueError("Unknown extension")
 
 imported = bpy.context.selected_objects[0]
 imported_stl = bpy.data.objects[imported.name]
+
+# clean up flat shading & clear materials, doing this for obj
+for poly in imported_stl.data.polygons:
+    poly.use_smooth = False
+imported_stl.data.materials.clear()
+
 dim = imported_stl.dimensions
 max_dim = max(max(dim.x, dim.y), dim.z) # only look at dimx dimy
 scale_factor = 6/max_dim;
