@@ -18,5 +18,6 @@ optional arguments:
   --stl_file STL_FILE   the one stl file you want to render
   --stl_dir STL_DIR     the directory of stl files you want to render
 ```
+![Example Image](example/drethraider0.jpg)
 
 ![Example Image](example/incredible-wluff-wolt0.png)
